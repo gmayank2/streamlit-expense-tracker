@@ -10,9 +10,10 @@ def income_page():
     df_inc = df 
     editable_grid(df_inc, save_income)
 
-    st.subheader("Add Income")
+    st.subheader("Add Completed Order")
     with st.form("income_form"):
-        i_date = st.date_input("Date", date.today())
+        #i_date = st.date_input("Date", date.today())
+        i_date_str = st.text_input("Delivery Date", (date.today()).strftime("%d-%m-%Y"))
         i_customer = st.text_input("Customer")
         i_amount_str = st.text_input("Amount")
         i_payment = st.selectbox("Payment Method", ["Cash", "UPI", "Card", "Other"])
@@ -20,7 +21,7 @@ def income_page():
         if st.form_submit_button("Add Income"):
             try:
                 i_amount = float(i_amount_str)
-                add_income(str(i_date), i_customer, i_amount, i_payment, i_comment)
+                add_income(i_date_str, i_customer, i_amount, i_payment, i_comment)
                 st.success("Income added successfully!")
             except ValueError:
                 st.error("Please enter a valid number for amount.")

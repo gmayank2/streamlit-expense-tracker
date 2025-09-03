@@ -145,3 +145,6 @@ def update_order(order_id, delivery_date, customer, item, price, advance, descri
               (delivery_date, customer, item, price, advance, pending, description, int(order_id)))
     conn.commit()
 
+def cancel_order (order_id):
+    c.execute("DELETE FROM orders WHERE order_id=?", (int(order_id),))
+    conn.commit()

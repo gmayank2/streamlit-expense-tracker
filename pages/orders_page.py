@@ -1,6 +1,7 @@
+
 import streamlit as st
 from datetime import date
-from db import add_order, get_orders, mark_order_delivered, move_order_to_income, update_order
+from db import add_order, get_orders, mark_order_delivered, move_order_to_income, update_order, cancel_order
 
 def orders_page():
     st.title("Orders")
@@ -49,7 +50,7 @@ def orders_page():
                                 """, unsafe_allow_html=True
                             )
 
-                            c1, c2, c3 = st.columns(3)
+                            c1, c2, c3, c4 = st.columns(4)
                             with c1:
                                 if row["delivered"] == 0:
                                     if st.button("Delivered", key=f"delivered_{row['order_id']}"):
@@ -63,6 +64,11 @@ def orders_page():
                                     st.success("Order moved to Income!")
                                     st.rerun()
                             with c3:
+                                if st.button("Cancel", key=f"cancel_{row['order_id']}"):
+                                    cancel_order(row["order_id"])
+                                    st.success("Order cancelled!")
+                                    st.rerun()
+                            with c4:
                                 if st.button("Edit", key=f"edit_{row['order_id']}"):
                                     st.session_state["editing_order"] = row
 
@@ -103,8 +109,10 @@ def orders_page():
         o_date = st.date_input("Delivery Date", date.today())
         o_customer = st.text_input("Customer")
         o_item = st.text_input("Item")
-        o_price_str = st.text_input("Price")
-        o_advance_str = st.text_input("Advance")
+        #o_price_str = st.text_input("Price")
+        #o_advance_str = st.text_input("Advance")
+        o_price_str = st.number_input("Price", min_value=0)
+        o_advance_str = st.number_input("Advance", min_value=0)
         o_desc = st.text_area("Detail Description")
         if st.form_submit_button("Add Order"):
             try:
@@ -115,4 +123,3 @@ def orders_page():
                 st.rerun()
             except ValueError:
                 st.error("Please enter valid numbers for price and advance.")
-
