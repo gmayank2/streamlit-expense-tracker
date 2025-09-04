@@ -8,12 +8,16 @@ from utils.formatters import format_date_str
 
 # --- Database Connection ---
 @st.cache_resource
-def get_connection():
+def get_connection_engine():
     #conn = psycopg2.connect(os.environ["SUPABASE_CONN_STRING"])
     conn_str = os.environ["SUPABASE_CONN_STRING"]
     engine = create_engine(conn_str)
     return engine
 
+def get_connection():
+    conn = psycopg2.connect(os.environ["SUPABASE_CONN_STRING"])
+    return conn
+    
 # --- Helper Functions ---
 def format_date(d):
     return datetime.strptime(d, "%Y-%m-%d").strftime("%d-%m-%Y") if d else ""
@@ -27,7 +31,7 @@ def execute_query(query, params=None):
     :param query: SQL query string with placeholders (%s)
     :param params: Tuple or list of parameters to pass with query
     """
-    engine = get_connection()        # Your method to get raw DB connection (e.g. psycopg2)
+    engine = get_connection_engine()        # Your method to get raw DB connection (e.g. psycopg2)
     raw_conn = engine.raw_connection()
     cur = raw_conn.cursor()
     try:
@@ -50,7 +54,7 @@ def add_expense(date, category, amount, comment):
     )
 
 def get_expenses():
-    conn = psycopg2.connect(os.environ["SUPABASE_CONN_STRING"])
+    conn = get_connection()
     df = pd.read_sql("SELECT * FROM expenses ORDER BY date DESC", conn)
     if not df.empty:
         df["date"] = df["date"].apply(lambda d: format_date_str(d))
@@ -72,7 +76,7 @@ def add_income(date, customer, amount, payment_method, comment):
     )
 
 def get_income():
-    conn = psycopg2.connect(os.environ["SUPABASE_CONN_STRING"])
+    conn = get_connection()
     df = pd.read_sql("SELECT * FROM income ORDER BY date DESC", conn)
     if not df.empty:
         df["date"] = df["date"].apply(lambda d: format_date_str(d))
@@ -96,7 +100,7 @@ def add_order(delivery_date, customer, item, price, advance, description):
     )
 
 def get_orders():
-    conn = psycopg2.connect(os.environ["SUPABASE_CONN_STRING"])
+    conn = get_connection()
     df = pd.read_sql("SELECT * FROM orders ORDER BY delivery_date DESC", conn)
     if not df.empty:
         df["delivery_date"] = pd.to_datetime(df["delivery_date"]).dt.strftime("%d-%m-%Y")
@@ -106,7 +110,7 @@ def mark_order_delivered(order_id):
     execute_query("UPDATE orders SET delivered=True WHERE order_id=%s", (int(order_id),))
 
 def move_order_to_income(order_id):
-    conn = psycopg2.connect(os.environ["SUPABASE_CONN_STRING"])
+    conn = get_connection()
     df = pd.read_sql("SELECT * FROM orders WHERE order_id=%s", conn, params=(int(order_id),))
     if df.empty:
         print("No order found with that ID " + str(order_id))
