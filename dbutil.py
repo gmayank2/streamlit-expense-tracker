@@ -2,10 +2,17 @@ import os
 import psycopg2
 import pandas as pd
 import streamlit as st
+import socket
 from sqlalchemy import create_engine
 from datetime import datetime
 from utils.formatters import format_date_str
 
+orig_getaddrinfo = socket.getaddrinfo
+
+def getaddrinfo_ipv4(*args, **kwargs):
+    return [info for info in orig_getaddrinfo(*args, **kwargs) if info[0] == socket.AF_INET]
+
+socket.getaddrinfo = getaddrinfo_ipv4
 # --- Database Connection ---
 @st.cache_resource
 def get_connection_engine():
