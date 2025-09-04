@@ -1,10 +1,13 @@
 import streamlit as st
 import logging
+import os
 
 from pages.expenses_page import expenses_page
 from pages.income_page import income_page
 from pages.orders_page import orders_page
 from pages.summary_page import summary_page
+
+#os.environ['SUPABASE_CONN_STRING'] = "postgresql://postgres:VibrantCakes12@db.tmmyrqbojigzfzykjtyo.supabase.co:5432/postgres?sslmode=require"
 
 st.set_page_config(page_title="Finance Tracker", layout="wide")
 

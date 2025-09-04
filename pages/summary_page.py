@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-from db import get_expenses, get_income
+from dbutil import get_expenses, get_income
 from utils.formatters import parse_date_str
 
 def summary_page():

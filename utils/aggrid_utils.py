@@ -2,7 +2,7 @@ from st_aggrid import GridOptionsBuilder, AgGrid, GridUpdateMode
 import pandas as pd
 import streamlit as st
 
-def editable_grid(df, save_func, delete_enabled=False):
+def editable_grid(df, save_func, delete_enabled=False, grid_key="default_grid"):
     if df.empty:
         st.info("No records found.")
         return
@@ -25,12 +25,12 @@ def editable_grid(df, save_func, delete_enabled=False):
     updated_df = pd.DataFrame(grid["data"])
     selected_rows = pd.DataFrame(grid["selected_rows"])
 
-    if st.button("Save Changes"):
+    if st.button("Save Changes", key=f"save_changes_{grid_key}"):
         df.update(updated_df)
         save_func(df)
         st.success("Changes saved successfully!")
 
-    if delete_enabled and st.button("Delete Selected"):
+    if delete_enabled and st.button("Delete Selected", key=f"delete_selected_{grid_key}"):
         if not selected_rows.empty:
             ids_to_delete = selected_rows["id"].tolist()
             df = df[~df["id"].isin(ids_to_delete)]

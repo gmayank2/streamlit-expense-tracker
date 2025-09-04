@@ -1,0 +1,46 @@
+-- ========================
+-- Expenses Table
+-- ========================
+CREATE TABLE IF NOT EXISTS expenses (
+    expense_id SERIAL PRIMARY KEY,         -- auto-incrementing ID
+    date DATE NOT NULL,                    -- expense date
+    category VARCHAR(100) NOT NULL,        -- category name
+    amount NUMERIC(12,2) NOT NULL,         -- supports large numbers with 2 decimals
+    comment TEXT                           -- free text comment
+);
+
+-- ========================
+-- Income Table
+-- ========================
+CREATE TABLE IF NOT EXISTS income (
+    income_id SERIAL PRIMARY KEY,          -- unique ID for income
+    order_id INT,                          -- just stores the order reference
+    date DATE NOT NULL,                    -- income date
+    customer VARCHAR(100) NOT NULL,        -- customer name
+    amount NUMERIC(12,2) NOT NULL,         -- income amount
+    payment_method VARCHAR(50) NOT NULL,   -- e.g., UPI, Cash
+    comment TEXT                           -- notes
+);
+
+-- ========================
+-- Orders Table
+-- ========================
+CREATE TABLE IF NOT EXISTS orders (
+    order_id SERIAL PRIMARY KEY,           -- auto-incrementing order ID
+    delivery_date DATE NOT NULL,           -- delivery date
+    customer VARCHAR(100) NOT NULL,        -- customer name
+    item VARCHAR(100) NOT NULL,            -- item description
+    price NUMERIC(12,2) NOT NULL,          -- order price
+    advance NUMERIC(12,2) DEFAULT 0,       -- advance paid
+    pending_balance NUMERIC(12,2) NOT NULL,-- computed as price - advance
+    description TEXT,                      -- order notes
+    delivered BOOLEAN DEFAULT FALSE        -- delivery status
+);
+
+
+Connection string
+postgresql://postgres:lsYrJh6IAXXKRRKR@db.tmmyrqbojigzfzykjtyo.supabase.co:5432/postgres?sslmode=require
+
+
+In Streamlit Cloud → App Settings → Secrets, add:
+SUPABASE_CONN_STRING="postgresql://postgres:MySecretPass@db.tmmyrqbojigzfzykjtyo.supabase.co:5432/postgres?sslmode=require"
