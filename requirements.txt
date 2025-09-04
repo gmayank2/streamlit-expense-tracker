@@ -1,5 +1,7 @@
 streamlit
 pandas
 streamlit-aggrid
-psycopg2-binary
+psycopg2
 sqlalchemy
+
+
