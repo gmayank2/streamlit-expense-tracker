@@ -50,7 +50,7 @@ def add_expense(date, category, amount, comment):
     )
 
 def get_expenses():
-    conn = get_connection()
+    conn = psycopg2.connect(os.environ["SUPABASE_CONN_STRING"])
     df = pd.read_sql("SELECT * FROM expenses ORDER BY date DESC", conn)
     if not df.empty:
         df["date"] = df["date"].apply(lambda d: format_date_str(d))
@@ -72,7 +72,7 @@ def add_income(date, customer, amount, payment_method, comment):
     )
 
 def get_income():
-    conn = get_connection()
+    conn = psycopg2.connect(os.environ["SUPABASE_CONN_STRING"])
     df = pd.read_sql("SELECT * FROM income ORDER BY date DESC", conn)
     if not df.empty:
         df["date"] = df["date"].apply(lambda d: format_date_str(d))
@@ -96,7 +96,7 @@ def add_order(delivery_date, customer, item, price, advance, description):
     )
 
 def get_orders():
-    conn = get_connection()
+    conn = psycopg2.connect(os.environ["SUPABASE_CONN_STRING"])
     df = pd.read_sql("SELECT * FROM orders ORDER BY delivery_date DESC", conn)
     if not df.empty:
         df["delivery_date"] = pd.to_datetime(df["delivery_date"]).dt.strftime("%d-%m-%Y")
@@ -106,7 +106,7 @@ def mark_order_delivered(order_id):
     execute_query("UPDATE orders SET delivered=True WHERE order_id=%s", (int(order_id),))
 
 def move_order_to_income(order_id):
-    conn = get_connection()
+    conn = psycopg2.connect(os.environ["SUPABASE_CONN_STRING"])
     df = pd.read_sql("SELECT * FROM orders WHERE order_id=%s", conn, params=(int(order_id),))
     if df.empty:
         print("No order found with that ID " + str(order_id))
