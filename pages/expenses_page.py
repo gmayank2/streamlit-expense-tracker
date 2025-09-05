@@ -1,10 +1,10 @@
 import streamlit as st
 from datetime import date
-from dbutil import add_expense, get_expenses, save_expenses
+from supabasedbutil import add_expense, get_expenses, save_expenses
 from utils.aggrid_utils import editable_grid
 
 def expenses_page():
-    st.title("Add Expense")
+    st.title("Add all expense")
 
     with st.form("expense_form"):
         e_date = st.date_input("Date", date.today())
