@@ -24,8 +24,9 @@ def get_connection_engine():
 
 def get_connection():
     conn_str = os.environ["SUPABASE_CONN_STRING"]
-    conn = psycopg2.connect(conn_str)
     print(conn_str)
+    st.write(conn_str)
+    conn = psycopg2.connect(conn_str)
     return conn
     
 # --- Helper Functions ---

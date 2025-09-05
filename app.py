@@ -12,7 +12,7 @@ from datetime import datetime
 
 @st.cache_resource
 def get_deploy_time():
-    return datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC")
+    return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
 st.sidebar.markdown(f"**Last deployed:** {get_deploy_time()}")
 st.set_page_config(page_title="Finance Tracker", layout="wide")
