@@ -3,7 +3,7 @@
 import streamlit as st
 from datetime import date
 from utils.formatters import parse_date_str
-from dbutil import add_order, get_orders, mark_order_delivered, move_order_to_income, update_order, cancel_order
+from supabasedbutil import add_order, get_orders, mark_order_delivered, move_order_to_income, update_order, cancel_order
 
 def orders_page():
     st.title("Orders")
@@ -27,9 +27,9 @@ def orders_page():
         st.session_state["editing_order"] = None
 
     st.subheader("Order List")
-    df_orders = get_orders().sort_values(by="delivery_date", ascending=True)
-
+    df_orders = get_orders()
     if not df_orders.empty:
+        df_orders = df_orders.sort_values(by="delivery_date", ascending=True)
         for i in range(0, len(df_orders), 2):
             cols = st.columns(2)
             for j in range(2):

@@ -1,6 +1,8 @@
 import streamlit as st
 import logging
 import os
+import pytz
+import socket
 
 from pages.expenses_page import expenses_page
 from pages.income_page import income_page
@@ -12,7 +14,7 @@ from datetime import datetime
 
 @st.cache_resource
 def get_deploy_time():
-    return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    return datetime.now(pytz.timezone('Asia/Kolkata')).strftime("%Y-%m-%d %H:%M:%S")
 
 st.sidebar.markdown(f"**Last deployed:** {get_deploy_time()}")
 st.set_page_config(page_title="Finance Tracker", layout="wide")

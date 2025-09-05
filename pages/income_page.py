@@ -1,6 +1,6 @@
 import streamlit as st
 from datetime import date
-from dbutil import add_income, get_income, save_income
+from supabasedbutil import add_income, get_income, save_income
 from utils.aggrid_utils import editable_grid
 
 def income_page():
@@ -8,13 +8,17 @@ def income_page():
 
     df = get_income()
     selected_cols = ["order_id", "date", "customer", "amount","payment_method","comment"]
-    filtered_df = df[selected_cols]
-    editable_grid(filtered_df, save_income, grid_key="income")
+    if not df.empty:
+        filtered_df = df[selected_cols]
+        editable_grid(filtered_df, save_income, grid_key="income")
+    else:
+        st.info("No income records found yet.")
 
     st.subheader("Add Completed Order")
     with st.form("income_form"):
         i_date = st.date_input("Date", date.today())
-        #i_date_str = st.text_input("Delivery Date", (date.today()).strftime("%d-%m-%Y"))
+        #i_date_str = i_date.strftime("%Y-%m-%d")
+        i_date_str = i_date.strftime("%d-%m-%Y") 
         i_customer = st.text_input("Customer")
         i_amount_str = st.text_input("Amount")
         i_payment = st.selectbox("Payment Method", ["Cash", "UPI", "Card", "Other"])
