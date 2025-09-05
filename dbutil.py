@@ -16,6 +16,15 @@ def get_connection_engine():
     engine = create_engine(conn_str)
     return engine
 
+# --- Force IPv4 resolution for Supabase host ---
+orig_getaddrinfo = socket.getaddrinfo
+def getaddrinfo_ipv4(host, port, *args, **kwargs):
+    results = orig_getaddrinfo(host, port, *args, **kwargs)
+    ipv4_results = [r for r in results if r[0] == socket.AF_INET]
+    return ipv4_results or results  # fallback to IPv6 if no IPv4 found
+
+socket.getaddrinfo = getaddrinfo_ipv4
+
 def get_connection():
     conn_str = os.environ["SUPABASE_CONN_STRING"]
     print(conn_str)
