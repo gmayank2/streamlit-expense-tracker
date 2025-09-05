@@ -7,18 +7,12 @@ from sqlalchemy import create_engine
 from datetime import datetime
 from utils.formatters import format_date_str
 
-orig_getaddrinfo = socket.getaddrinfo
 
-def getaddrinfo_ipv4(*args, **kwargs):
-    return [info for info in orig_getaddrinfo(*args, **kwargs) if info[0] == socket.AF_INET]
-
-socket.getaddrinfo = getaddrinfo_ipv4
 # --- Database Connection ---
 @st.cache_resource
 def get_connection_engine():
     #conn = psycopg2.connect(os.environ["SUPABASE_CONN_STRING"])
     conn_str = os.environ["SUPABASE_CONN_STRING"]
-    print(conn_str)
     engine = create_engine(conn_str)
     return engine
 
