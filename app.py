@@ -6,9 +6,15 @@ from pages.expenses_page import expenses_page
 from pages.income_page import income_page
 from pages.orders_page import orders_page
 from pages.summary_page import summary_page
+from datetime import datetime
 
 #os.environ['SUPABASE_CONN_STRING'] = "postgresql://postgres:VibrantCakes12@db.tmmyrqbojigzfzykjtyo.supabase.co:5432/postgres?sslmode=require"
 
+@st.cache_resource
+def get_deploy_time():
+    return datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC")
+
+st.sidebar.markdown(f"**Last deployed:** {get_deploy_time()}")
 st.set_page_config(page_title="Finance Tracker", layout="wide")
 
 tabs = st.tabs(["Orders", "Completed Orders", "Expenses", "Summary"])

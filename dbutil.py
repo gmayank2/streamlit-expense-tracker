@@ -18,11 +18,14 @@ socket.getaddrinfo = getaddrinfo_ipv4
 def get_connection_engine():
     #conn = psycopg2.connect(os.environ["SUPABASE_CONN_STRING"])
     conn_str = os.environ["SUPABASE_CONN_STRING"]
+    print(conn_str)
     engine = create_engine(conn_str)
     return engine
 
 def get_connection():
-    conn = psycopg2.connect(os.environ["SUPABASE_CONN_STRING"])
+    conn_str = os.environ["SUPABASE_CONN_STRING"]
+    conn = psycopg2.connect(conn_str)
+    print(conn_str)
     return conn
     
 # --- Helper Functions ---
