@@ -44,7 +44,7 @@ def save_expenses(df):
 # --- Income ---
 def add_income(date, customer, amount, payment_method, comment):
     supabase.table("income").insert({
-        "date": date,
+        "date": date.isoformat(),
         "customer": customer,
         "amount": amount,
         "payment_method": payment_method,
@@ -69,7 +69,7 @@ def save_income(df):
 def add_order(delivery_date, customer, item, price, advance, description):
     pending = price - advance
     supabase.table("orders").insert({
-        "delivery_date": delivery_date,
+        "delivery_date": delivery_date.isoformat()   ,
         "customer": customer,
         "item": item,
         "price": price,

@@ -26,7 +26,7 @@ def income_page():
         if st.form_submit_button("Add Income"):
             try:
                 i_amount = float(i_amount_str)
-                add_income(i_date_str, i_customer, i_amount, i_payment, i_comment)
+                add_income(i_date, i_customer, i_amount, i_payment, i_comment)
                 st.success("Income added successfully!")
             except ValueError:
                 st.error("Please enter a valid number for amount.")
