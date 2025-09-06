@@ -59,11 +59,12 @@ def get_income():
     return df
 
 def save_income(df):
-    supabase.table("income").delete().neq("order_id", 0).execute()  # delete all
+    allowed_columns = ["order_id", "date", "customer", "amount", "payment_method", "comment"]
+    df = df[allowed_columns]
     data = df.to_dict(orient="records")
-    if data:
-        supabase.table("income").insert(data).execute()
-
+    for row in data:
+        order_id = row["order_id"]
+        supabase.table("income").update(row).eq("order_id", order_id).execute()
 
 # --- Orders ---
 def add_order(delivery_date, customer, item, price, advance, description):

@@ -13,7 +13,7 @@ def income_page():
         editable_grid(filtered_df, save_income, grid_key="income")
     else:
         st.info("No income records found yet.")
-
+    """
     st.subheader("Add Completed Order")
     with st.form("income_form"):
         i_date = st.date_input("Date", date.today())
@@ -30,3 +30,4 @@ def income_page():
                 st.success("Income added successfully!")
             except ValueError:
                 st.error("Please enter a valid number for amount.")
+    """

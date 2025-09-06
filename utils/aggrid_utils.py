@@ -11,9 +11,16 @@ def editable_grid(df, save_func, delete_enabled=False, grid_key="default_grid"):
     gb.configure_pagination()
     gb.configure_default_column(editable=True)
     gb.configure_column("id", hide=True)
+    gb.configure_column("order_id", editable=False)  # Make 'order_id' read-only
     gb.configure_selection("multiple", use_checkbox=False)
     gb.configure_grid_options(suppressRowClickSelection=True)
     #gb.configure_column("date", headerCheckboxSelection=True, headerCheckboxSelectionFilteredOnly=True, checkboxSelection=True)
+    gb.configure_column("order_id", width=80)
+    gb.configure_column("date", width=80)
+    gb.configure_column("customer", width=120)
+    gb.configure_column("amount", width=80)
+    gb.configure_column("payment_method", width=80)
+    gb.configure_column("comment", width=150)
 
     grid = AgGrid(
         df,
