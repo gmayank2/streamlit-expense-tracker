@@ -38,14 +38,18 @@ def orders_page():
     if c1.button("Deliver", key=f"d_{row['order_id']}"):
         mark_order_delivered(row["order_id"])
         st.success("Order delivered!")
+        st.rerun()
     if c2.button("Paid", key=f"p_{row['order_id']}"):
         move_order_to_income(row["order_id"])
         st.success("Order moved to income!")
+        st.rerun()
     if c3.button("Edit", key=f"e_{row['order_id']}"):
         st.session_state["editing_order"] = row
+        #st.rerun()
     if c4.button("Cancel", key=f"c_{row['order_id']}"):
         cancel_order(row["order_id"])
-        st.error("Order cancelled!")
+        st.success("Order cancelled!")
+        st.rerun()
 
     # --- Edit form ---
     if st.session_state["editing_order"] is not None:
