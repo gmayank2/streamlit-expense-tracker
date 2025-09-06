@@ -35,17 +35,24 @@ def orders_page():
         st.write(f"**Description:** {row['description']}")
 
         c1, c2, c3, c4, c5 = st.columns(5)
-        if c1.button("Deliver", key=f"d_{row['order_id']}"):
-            mark_order_delivered(row["order_id"])
-            st.success("Order delivered!")
+        if row.get("delivered", False):
+            c1.button("Delivered", key=f"d_{row['order_id']}", disabled=True)
+        else:
+            if c1.button("Deliver", key=f"d_{row['order_id']}"):
+                mark_order_delivered(row["order_id"])
+                st.success("Order delivered!")
+                st.rerun()
         if c2.button("Paid", key=f"p_{row['order_id']}"):
             move_order_to_income(row["order_id"])
             st.success("Order moved to income!")
+            st.rerun()
         if c3.button("Edit", key=f"e_{row['order_id']}"):
             st.session_state["editing_order"] = row
+            st.rerun()
         if c4.button("Cancel", key=f"c_{row['order_id']}"):
             cancel_order(row["order_id"])
             st.success("Order cancelled!")
+            st.rerun()
 
         # --- Edit form ---
         if st.session_state["editing_order"] is not None:
@@ -67,6 +74,7 @@ def orders_page():
                             update_order(row["order_id"], str(e_date), e_customer, e_item, e_price, e_advance, e_desc)
                             st.success("Order updated successfully!")
                             st.session_state["editing_order"] = None
+                            st.rerun()
                         except ValueError:
                             st.error("Please enter valid numbers for price and advance.")
                 with col2:
@@ -75,18 +83,29 @@ def orders_page():
 
     # --- Add order form ---
     st.subheader("Add Order")
-    with st.form("order_form"):
-        o_date = st.date_input("Delivery Date", date.today())
-        o_customer = st.text_input("Customer")
-        o_item = st.text_input("Item")
-        o_price_str = st.number_input("Price", min_value=0)
-        o_advance_str = st.number_input("Advance", min_value=0)
-        o_desc = st.text_area("Detail Description")
+
+    with st.form("order_form", clear_on_submit=True):
+        o_date = st.date_input("Delivery Date", date.today(), key="o_date")
+        o_customer = st.text_input("Customer", key="o_customer")
+        o_item = st.text_input("Item", key="o_item")
+        o_price_str = st.number_input("Price", min_value=0, key="o_price")
+        o_advance_str = st.number_input("Advance", min_value=0, key="o_advance")
+        o_desc = st.text_area("Detail Description", key="o_desc")
+
         if st.form_submit_button("Add Order"):
             try:
                 o_price = float(o_price_str)
                 o_advance = float(o_advance_str)
                 add_order(o_date, o_customer, o_item, o_price, o_advance, o_desc)
                 st.success("Order added successfully!")
+
+                # 🔑 Reset fields BEFORE rerun
+                for key in ["o_date", "o_customer", "o_item", "o_price", "o_advance", "o_desc"]:
+                    if key in st.session_state:
+                        del st.session_state[key]
+
+                st.rerun()
             except ValueError:
                 st.error("Please enter valid numbers for price and advance.")
+
+
