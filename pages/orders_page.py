@@ -1,83 +1,53 @@
-
-
 import streamlit as st
 from datetime import date
 from utils.formatters import parse_date_str
 from supabasedbutil import add_order, get_orders, mark_order_delivered, move_order_to_income, update_order, cancel_order
 
 def orders_page():
-    st.title("Orders")
-
-    # CSS for tiles
-    st.markdown("""
-        <style>
-        .order-card {
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            padding: 8px;
-            margin-bottom: 10px;
-            background-color: #f9f9f9;
-        }
-        .order-field { margin: 2px 0; font-size: 13px; }
-        .order-date { font-weight: bold; font-size: 14px; margin-bottom: 4px; }
-        </style>
-    """, unsafe_allow_html=True)
+    st.title("Orders - Radio Selection View")
 
     if "editing_order" not in st.session_state:
         st.session_state["editing_order"] = None
 
-    st.subheader("Order List")
     df_orders = get_orders()
-    if not df_orders.empty:
-        df_orders = df_orders.sort_values(by="delivery_date", ascending=True)
-        for i in range(0, len(df_orders), 2):
-            cols = st.columns(2)
-            for j in range(2):
-                if i + j < len(df_orders):
-                    row = df_orders.iloc[i + j]
-                    with cols[j]:
-                        with st.container():
-                            st.markdown(
-                                f"""
-                                <div class='order-card'>
-                                    <div class='order-date'>{row['delivery_date']}</div>
-                                    <div class='order-field'>Order Id: {row['order_id']}</div>
-                                    <div class='order-field'>Customer: {row['customer']}</div>
-                                    <div class='order-field'>Item: {row['item']}</div>
-                                    <div class='order-field'>Price: {row['price']}</div>
-                                    <div class='order-field'>Advance: {row['advance']}</div>
-                                    <div class='order-field'>Pending: {row['pending_balance']}</div>
-                                    <div class='order-field'>Description: {row['description']}</div>
-                                </div>
-                                """, unsafe_allow_html=True
-                            )
 
-                            c1, c2, c3, c4 = st.columns(4)
-                            with c1:
-                                if row["delivered"] == False:
-                                    if st.button("Delivered", key=f"delivered_{row['order_id']}"):
-                                        mark_order_delivered(row["order_id"])
-                                        st.rerun()
-                                else:
-                                    st.button("Delivered", key=f"delivered_{row['order_id']}", disabled=True)
-                            with c2:
-                                if st.button("Fully Paid", key=f"paid_{row['order_id']}"):
-                                    move_order_to_income(row["order_id"])
-                                    st.success("Order moved to Income!")
-                                    st.rerun()
-                            with c3:
-                                if st.button("Cancel", key=f"cancel_{row['order_id']}"):
-                                    cancel_order(row["order_id"])
-                                    st.success("Order cancelled!")
-                                    st.rerun()
-                            with c4:
-                                if st.button("Edit", key=f"edit_{row['order_id']}"):
-                                    st.session_state["editing_order"] = row
-
-    else:
+    if df_orders.empty:
         st.info("No orders found.")
+        return
 
-    # 🔹 Show wide Edit form if one is selected
+    df_orders = df_orders.sort_values(by="delivery_date", ascending=True)
+
+    order_labels = [
+        f"#{row['order_id']} - **{row['delivery_date']}** - {row['customer']} - {row['item']}"
+        for _, row in df_orders.iterrows()
+    ]
+    selected = st.radio("Select an order", order_labels)
+
+    # Find selected order
+    idx = order_labels.index(selected)
+    row = df_orders.iloc[idx]
+
+    st.subheader(f"Details for Order #{row['order_id']}")
+    st.write(f"**Delivery Date:** {row['delivery_date']}")
+    st.write(f"**Customer:** {row['customer']}")
+    st.write(f"**Item:** {row['item']}")
+    st.write(f"**Price:** ₹{row['price']} | **Advance:** ₹{row['advance']} | **Pending:** ₹{row['pending_balance']}")
+    st.write(f"**Description:** {row['description']}")
+
+    c1, c2, c3, c4, c5 = st.columns(5)
+    if c1.button("Deliver", key=f"d_{row['order_id']}"):
+        mark_order_delivered(row["order_id"])
+        st.success("Order delivered!")
+    if c2.button("Paid", key=f"p_{row['order_id']}"):
+        move_order_to_income(row["order_id"])
+        st.success("Order moved to income!")
+    if c3.button("Edit", key=f"e_{row['order_id']}"):
+        st.session_state["editing_order"] = row
+    if c4.button("Cancel", key=f"c_{row['order_id']}"):
+        cancel_order(row["order_id"])
+        st.error("Order cancelled!")
+
+    # --- Edit form ---
     if st.session_state["editing_order"] is not None:
         row = st.session_state["editing_order"]
         st.subheader(f"Edit Order – {row['customer']}")
@@ -97,22 +67,18 @@ def orders_page():
                         update_order(row["order_id"], str(e_date), e_customer, e_item, e_price, e_advance, e_desc)
                         st.success("Order updated successfully!")
                         st.session_state["editing_order"] = None
-                        st.rerun()
                     except ValueError:
                         st.error("Please enter valid numbers for price and advance.")
             with col2:
                 if st.form_submit_button("Cancel"):
                     st.session_state["editing_order"] = None
-                    st.rerun()
 
-    # 🔹 Add Order form at bottom
+    # --- Add order form ---
     st.subheader("Add Order")
     with st.form("order_form"):
         o_date = st.date_input("Delivery Date", date.today())
         o_customer = st.text_input("Customer")
         o_item = st.text_input("Item")
-        #o_price_str = st.text_input("Price")
-        #o_advance_str = st.text_input("Advance")
         o_price_str = st.number_input("Price", min_value=0)
         o_advance_str = st.number_input("Advance", min_value=0)
         o_desc = st.text_area("Detail Description")
@@ -122,6 +88,5 @@ def orders_page():
                 o_advance = float(o_advance_str)
                 add_order(o_date, o_customer, o_item, o_price, o_advance, o_desc)
                 st.success("Order added successfully!")
-                st.rerun()
             except ValueError:
                 st.error("Please enter valid numbers for price and advance.")
