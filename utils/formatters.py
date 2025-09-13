@@ -1,7 +1,5 @@
 from datetime import datetime
 
-from datetime import datetime
-
 def format_date_str(date_str):
     """Convert date string to DD-MM-YYYY regardless of input format."""
     if not date_str:

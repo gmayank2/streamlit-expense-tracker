@@ -2,6 +2,7 @@ import streamlit as st
 from datetime import date
 from supabasedbutil import add_expense, get_expenses, save_expenses
 from utils.aggrid_utils import editable_grid
+from st_aggrid import GridOptionsBuilder
 
 def expenses_page():
     st.title("Add all expense")
@@ -20,6 +21,29 @@ def expenses_page():
             except ValueError:
                 st.error("Please enter a valid number for amount.")
 
-    st.subheader("Edit/Delete Expenses")
+    st.subheader("Edit Expenses")
+    selected_cols = ["expense_id", "date", "category", "amount","comment"]
     df_exp = get_expenses()
-    editable_grid(df_exp, save_expenses, grid_key="expenses")
+    if not df_exp.empty:
+        filtered_df = df_exp[selected_cols]
+        gb=get_grid_options_builder(filtered_df)
+        editable_grid(filtered_df, save_expenses, gb, grid_key="expenses")
+    else:
+        st.info("No Expense records found yet.")
+
+
+def get_grid_options_builder(df):
+    gb = GridOptionsBuilder.from_dataframe(df)
+    gb.configure_pagination()
+    gb.configure_default_column(editable=True)
+    gb.configure_column("id", hide=True)
+    gb.configure_column("expense_id", editable=False)  # Make 'expense_id' read-only
+    gb.configure_selection("multiple", use_checkbox=False)
+    gb.configure_grid_options(suppressRowClickSelection=True)
+    #gb.configure_column("date", headerCheckboxSelection=True, headerCheckboxSelectionFilteredOnly=True, checkboxSelection=True)
+    gb.configure_column("expense_id", width=80)
+    gb.configure_column("date", width=80)
+    gb.configure_column("category", width=120)
+    gb.configure_column("amount", width=80)
+    gb.configure_column("comment", width=150)
+    return gb

@@ -30,34 +30,38 @@ def add_expense(date, category, amount, comment):
 def get_expenses():
     res = supabase.table("expenses").select("*").order("date", desc=True).execute()
     df = pd.DataFrame(res.data)
-    if not df.empty:
-        df["date"] = df["date"].apply(lambda d: format_date_str(d))
     return df
 
 def save_expenses(df):
-    supabase.table("expenses").delete().neq("expense_id", 0).execute()  # delete all
+    allowed_columns = ["expense_id", "date", "category", "amount", "comment"]
+    df = df[allowed_columns]
     data = df.to_dict(orient="records")
-    if data:
-        supabase.table("expenses").insert(data).execute()
-
+    for row in data:
+        expense_id = row["expense_id"]
+        supabase.table("expenses").update(row).eq("expense_id", expense_id).execute()
 
 # --- Income ---
 def add_income(date, customer, amount, payment_method, comment):
     supabase.table("income").insert({
-        "date": date.isoformat(),
+        "date": date,
         "customer": customer,
         "amount": amount,
         "payment_method": payment_method,
         "comment": comment
     }).execute()
-
+"""
 def get_income():
     res = supabase.table("income").select("*").order("date", desc=True).execute()
     df = pd.DataFrame(res.data)
     if not df.empty:
         df["date"] = df["date"].apply(lambda d: format_date_str(d))
     return df
-
+"""
+def get_income():
+    res = supabase.table("income").select("*").order("date", desc=True).execute()
+    df = pd.DataFrame(res.data)
+    return df
+    
 def save_income(df):
     allowed_columns = ["order_id", "date", "customer", "amount", "payment_method", "comment"]
     df = df[allowed_columns]
@@ -69,8 +73,9 @@ def save_income(df):
 # --- Orders ---
 def add_order(delivery_date, customer, item, price, advance, description):
     pending = price - advance
+   
     supabase.table("orders").insert({
-        "delivery_date": delivery_date.isoformat()   ,
+        "delivery_date": delivery_date   ,
         "customer": customer,
         "item": item,
         "price": price,
