@@ -63,7 +63,7 @@ def orders_page():
         payment_pending = df_orders[df_orders['delivery_date'] < today]
         open_orders = df_orders[df_orders['delivery_date'] >= today]
 
-        st.subheader("📌 Open Orders")
+        st.subheader("Open Orders")
         if open_orders.empty:
             st.write("No open orders.")
         else:
@@ -73,7 +73,7 @@ def orders_page():
                 if st.button(order_label, key=f"open_{row['order_id']}"):
                     st.session_state["selected_order"] = row
 
-        st.subheader("📌 Payment Pending")
+        st.subheader("Payment Pending")
         if payment_pending.empty:
             st.write("No payment pending orders.")
         else:
@@ -93,24 +93,24 @@ def orders_page():
             st.write(f"**Description:** {row['description']}")
 
             c1, c2, c3, c4 = st.columns(4)
-            if row.get("delivered", False):
-                c1.button("Delivered", disabled=True)
-            else:
-                if c1.button("Deliver"):
-                    mark_order_delivered(row["order_id"])
-                    st.success("Order delivered!")
-                    st.rerun()
-            if c2.button("Paid"):
+            if c1.button("Paid"):
                 move_order_to_income(row["order_id"])
                 st.success("Order moved to income!")
                 st.rerun()
-            if c3.button("Edit"):
+            if c2.button("Edit"):
                 st.session_state["editing_order"] = row
                 st.rerun()
-            if c4.button("Cancel"):
+            if c3.button("Cancel"):
                 cancel_order(row["order_id"])
                 st.success("Order cancelled!")
                 st.rerun()
+            # if row.get("delivered", False):
+                # c1.button("Delivered", disabled=True)
+            # else:
+                # if c4.button("Deliver"):
+                    # mark_order_delivered(row["order_id"])
+                    # st.success("Order delivered!")
+                    # st.rerun()
 
             if st.session_state["editing_order"] is not None:
                 row = st.session_state["editing_order"]

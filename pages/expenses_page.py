@@ -34,7 +34,7 @@ def expenses_page():
 
 def get_grid_options_builder(df):
     gb = GridOptionsBuilder.from_dataframe(df)
-    gb.configure_pagination()
+    gb.configure_pagination(paginationAutoPageSize=False, paginationPageSize=50)
     gb.configure_default_column(editable=True)
     gb.configure_column("id", hide=True)
     gb.configure_column("expense_id", editable=False)  # Make 'expense_id' read-only
